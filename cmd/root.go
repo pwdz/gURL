@@ -65,8 +65,13 @@ var RootCmd = &cobra.Command{
 			log.Fatal(err)
 			return
 		}
+		filePath, err := cmd.Flags().GetString("file")
+		if err != nil{
+			log.Fatal(err)
+			return
+		}
 
-		if err := app.Send(args[0], method, rawHeaders, rawQuerries, data, json, timeout); err != nil {
+		if err := app.Send(args[0], method, rawHeaders, rawQuerries, data, json, filePath, timeout); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

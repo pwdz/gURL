@@ -21,11 +21,13 @@ const(
 	DefaultMethod = "GET"
 	DefaultContentTypeValue = "application/x-www-form-urlencoded"
 	JSONContentTypeValue = "application/json"
+	FileContentTypeValue = "application/octet-stream"
 	contentTypeKey = "content-type"
+
 )
 var Methods = []string{"GET", "POST", "PATCH", "DELETE", "PUT"}
 
-func Send(url, method string, rawHeaders, rawQuerries []string, data, json string, timeout int) error {
+func Send(url, method string, rawHeaders, rawQuerries []string, data, json, filePath string, timeout int) error {
 	// if !pkg.IsValidUrl(url){
 	// 	return log.Errorf("URL is not valid.")
 	// }
@@ -51,6 +53,10 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json strin
 		addData(request, data)
 	}else if json != "" {
 		addJson(request, json)
+	}else if filePath != "" {
+		if err := addFile(request, filePath); err!= nil{
+			return err
+		}
 	}
 
 	log.Println("Sending request to: ", request.URL)
@@ -131,6 +137,7 @@ func parseQuerries(rawQuerries []string) map[string]string{ //rawQuerry = "key1=
 	return querriesMap
 }
 func addData(request *http.Request, data string){
+	log.Println("Adding data to body...")
 	request.Body = ioutil.NopCloser(bytes.NewBufferString(data))
 
 	if request.Header.Get(contentTypeKey) == ""{	
@@ -142,6 +149,7 @@ func addData(request *http.Request, data string){
 	}
 }
 func addJson(request *http.Request, json string){
+	log.Println("Adding json to body...")
 	request.Body = ioutil.NopCloser(bytes.NewBufferString(json))
 	if request.Header.Get(contentTypeKey) == "" {
 		request.Header.Add(contentTypeKey, JSONContentTypeValue)
@@ -150,6 +158,19 @@ func addJson(request *http.Request, json string){
 	if !v.IsJSONValid(json){
 		log.Println("Warning: data body doesn't match " + JSONContentTypeValue + ":\n ", json)
 	} 
+}
+func addFile(request *http.Request, filePath string) error {
+	log.Println("Adding file to body...")
+	fileBytes, err := ioutil.ReadFile(filePath)
+    if err != nil {
+        return err
+    }
+	request.Body = ioutil.NopCloser(bytes.NewBuffer(fileBytes))
+
+	if request.Header.Get(contentTypeKey) == "" {
+		request.Header.Add(contentTypeKey, FileContentTypeValue)
+	}
+	return nil
 }
 func parseResponse(resp *http.Response){
 	defer resp.Body.Close()

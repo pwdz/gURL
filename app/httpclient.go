@@ -33,9 +33,9 @@ const(
 var Methods = []string{"GET", "POST", "PATCH", "DELETE", "PUT"}
 
 func Send(url, method string, rawHeaders, rawQuerries []string, data, json, filePath string, timeout int) error {
-	// if !v.IsValidUrl(url){
-	// 	return log.Errorf("URL is not valid.")
-	// }
+	if !v.IsValidUrl(url){
+		return fmt.Errorf("URL is not valid.")
+	}
 
 	if !v.IsMethodValid(method, Methods) {
 		return fmt.Errorf("Method " + method + " is not valid. supported methods: GET, POST, PATCH, DELETE, PUT")

@@ -2,11 +2,12 @@ package pkg
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/url"
 	"strings"
 )
 func IsValidUrl(data string) bool {
+	log.Println("Validating url...")
 	_, err := url.ParseRequestURI(data)
 	if err != nil {
 		return false
@@ -25,7 +26,7 @@ func IsJSONValid(data string) bool {
 	return json.Unmarshal([]byte(data), &marshaled) == nil
 }
 func IsMethodValid(method string, methods []string) bool{
-	fmt.Println("Validating method...")
+	log.Println("Validating method...")
 	for _, m := range methods{
 		if m == method{
 			return true

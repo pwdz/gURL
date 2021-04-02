@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"os"
 
 	v "github.com/pwdz/gurl/pkg/validation"
 )
@@ -23,12 +24,16 @@ const(
 	JSONContentTypeValue = "application/json"
 	FileContentTypeValue = "application/octet-stream"
 	contentTypeKey = "content-type"
-
+	
+	PNGContentType = "image/png"
+	JPEGContentType = "image/jpeg"
+	PDFContentType = "application/pdf"
+	MP4ContentType = "video/mp4"
 )
 var Methods = []string{"GET", "POST", "PATCH", "DELETE", "PUT"}
 
 func Send(url, method string, rawHeaders, rawQuerries []string, data, json, filePath string, timeout int) error {
-	// if !pkg.IsValidUrl(url){
+	// if !v.IsValidUrl(url){
 	// 	return log.Errorf("URL is not valid.")
 	// }
 
@@ -41,7 +46,7 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json, file
 	//init request
 	log.Println("Init request")
 	request, err := http.NewRequest(method, url, nil)
-
+	
 	if err != nil{
 		return err
 	}
@@ -69,7 +74,7 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json, file
 		})
 		defer timer.Stop()
 	}
-
+	
 	resp, err := client.Do(request)
 	if err != nil{
 		return err
@@ -78,6 +83,9 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json, file
 	parseResponse(resp)
 
 	return nil
+}
+func read(){
+
 }
 func addCustomHeaders(request *http.Request, rawHeaders []string){
 	headersMap, warning := parseHeaders(rawHeaders)
@@ -182,10 +190,39 @@ func parseResponse(resp *http.Response){
 		fmt.Println(key , ":" , value)
 	}
 
+	handleBody(resp)
+}
+func handleBody(resp *http.Response){
+	postFix := ""
+	
 	body, err := ioutil.ReadAll(resp.Body)
-	if err!=nil{
+
+	switch resp.Header.Get(contentTypeKey) {
+	case PNGContentType:
+		postFix = ".png"
+	case JPEGContentType:
+		postFix = ".jpeg"
+	case MP4ContentType:
+		postFix = ".mp4"
+	case PDFContentType:
+		postFix = ".pdf"
+	default:
+		if err!=nil{
+			log.Fatal(err)
+		}
+
+		fmt.Println("\nBody:\n" , string(body))
+		return
+	}
+	saveFile(body, postFix)
+}
+func saveFile(body []byte, postFix string){
+	fileName := time.Now().String() + postFix
+	emptyFile, err := os.Create(fileName)
+	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("\nBody:\n" , string(body))
+	emptyFile.Write(body)
+	emptyFile.Close()
+	log.Println(">>>>> file saved", fileName)
 }

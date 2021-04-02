@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
+	// "time"
 
 	"github.com/pwdz/gurl/pkg/validation"
 )
@@ -39,15 +39,18 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json strin
 
 	addHeaders(request, rawHeaders)
 	addQuerries(request, rawQuerries)
-	
+
 
 
 	return nil
 }
 func addHeaders(request *http.Request, rawHeaders []string){
-	headersMap := parseHeaders(rawHeaders)
+	headersMap, warning := parseHeaders(rawHeaders)
 	for key, value := range headersMap{ 
 		request.Header.Add(key, value)
+	}
+	if warning != nil{
+		fmt.Println(warning)
 	}
 }
 func addQuerries(request *http.Request, rawQuerries []string){
@@ -56,20 +59,26 @@ func addQuerries(request *http.Request, rawQuerries []string){
 		request.URL.Query().Add(key, value)
 	}
 }
-func parseHeaders(rawHeaders []string) map[string]string {
+func parseHeaders(rawHeaders []string) (map[string]string, string) {
 	if rawHeaders == nil{
-		return nil
+		return nil, nil
 	}
+
 	headersMap := make(map[string]string)
+	warning := ""
 
 	for _, rawHeader := range rawHeaders{ //rawHeader = "key1:value1,key2:value2"
 		for _, header := range strings.Split(rawHeader,","){
 			keyValue := strings.Split(header, ":")
+			
+			if pkg.InMapExists(headersMap, keyValue[0]){
+				warning += "Header " + keyValue[0] " already exists. Replacing " + headersMap[kekeyValue[0]] + " with " + keykeyValue[1] +"\n"
+			}
 			headersMap[keyValue[0]] = keyValue[1]
 		}
 	}
 
-	return headersMap
+	return headersMap, warning
 }
 func parseQuerries(rawQuerries []string) map[string]string{ //rawQuerry = "key1=value1&key2=value2"
 	if rawQuerries == nil{

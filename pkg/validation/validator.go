@@ -33,3 +33,7 @@ func IsMethodValid(method string) bool{
 	}
 	return false
 }
+func InMapExists(m map[string]string, value string) bool {
+	_, ok := m[value]
+	return ok
+}

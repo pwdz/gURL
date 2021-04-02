@@ -34,9 +34,7 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json strin
 		return fmt.Errorf("Method " + method + " is not valid. supported methods: GET, POST, PATCH, DELETE, PUT")
 	}
 
-	client := http.Client{
-		Timeout: time.Duration(timeout * int(time.Second)),
-	};
+	client := http.Client{};
 	
 	//init request
 	log.Println("Init request")
@@ -56,6 +54,15 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json strin
 	}
 
 	log.Println("Sending request to: ", request.URL)
+
+	if timeout > 0{
+		timer := time.AfterFunc(time.Second*time.Duration(timeout), func() {
+			
+			client.CloseIdleConnections()
+			log.Fatal("Time limit exceeded")
+		})
+		defer timer.Stop()
+	}
 
 	resp, err := client.Do(request)
 	if err != nil{
@@ -129,7 +136,7 @@ func addData(request *http.Request, data string){
 	}
 
 	if !v.IsDataValid(data){
-		log.Println("Not a valid data body:\n", data)
+		log.Println("Warning: data body doesn't match " + DefaultContentTypeValue + ":\n", data)
 	}
 }
 func addJson(request *http.Request, json string){
@@ -139,7 +146,7 @@ func addJson(request *http.Request, json string){
 	}
 
 	if !v.IsJSONValid(json){
-		log.Println("Not a valid json:\n ", json)
+		log.Println("Warning: data body doesn't match " + JSONContentTypeValue + ":\n ", json)
 	} 
 }
 func parseResponse(resp *http.Response){

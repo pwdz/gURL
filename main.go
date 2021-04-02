@@ -14,7 +14,7 @@
 
 package main
 
-import "gurl/cmd"
+import "github.com/pwdz/gurl/cmd"
 
 func main() {
 	cmd.Execute()

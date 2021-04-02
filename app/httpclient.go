@@ -7,8 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
-	// "time"
+	"time"
 
 	v "github.com/pwdz/gurl/pkg/validation"
 )
@@ -28,15 +27,16 @@ var Methods = []string{"GET", "POST", "PATCH", "DELETE", "PUT"}
 
 func Send(url, method string, rawHeaders, rawQuerries []string, data, json string, timeout int) error {
 	// if !pkg.IsValidUrl(url){
-	// 	return fmt.Errorf("URL is not valid.")
+	// 	return log.Errorf("URL is not valid.")
 	// }
+
 	if !v.IsMethodValid(method, Methods) {
 		return fmt.Errorf("Method " + method + " is not valid. supported methods: GET, POST, PATCH, DELETE, PUT")
 	}
 
-	// client := http.Client{
-	// 	Timeout: time.Duration(timeout * int(time.Second)),
-	// };
+	client := http.Client{
+		Timeout: time.Duration(timeout * int(time.Second)),
+	};
 	
 	//init request
 	log.Println("Init request")
@@ -55,9 +55,14 @@ func Send(url, method string, rawHeaders, rawQuerries []string, data, json strin
 		addJson(request, json)
 	}
 
-	
+	log.Println("Sending request to: ", request.URL)
 
-	fmt.Println(request)
+	resp, err := client.Do(request)
+	if err != nil{
+		return err
+	}
+
+	parseResponse(resp)
 
 	return nil
 }
@@ -69,7 +74,7 @@ func addCustomHeaders(request *http.Request, rawHeaders []string){
 		request.Header.Add(strings.ToLower(key),value)
 	}
 	if warning != ""{
-		fmt.Println(warning)
+		log.Println(warning)
 	}
 }
 func addQuerries(request *http.Request, rawQuerries []string){
@@ -124,7 +129,7 @@ func addData(request *http.Request, data string){
 	}
 
 	if !v.IsDataValid(data){
-		fmt.Println("Not a valid data body:\n", data)
+		log.Println("Not a valid data body:\n", data)
 	}
 }
 func addJson(request *http.Request, json string){
@@ -134,6 +139,23 @@ func addJson(request *http.Request, json string){
 	}
 
 	if !v.IsJSONValid(json){
-		fmt.Println("Not a valid json:\n ", json)
+		log.Println("Not a valid json:\n ", json)
 	} 
+}
+func parseResponse(resp *http.Response){
+	defer resp.Body.Close()
+	log.Println("\n============================\nReponse:")
+	fmt.Println(resp.Status)
+	fmt.Println(resp.Request.Method)
+	fmt.Println("===\nHeaders:")
+	for key, value := range resp.Header{
+		fmt.Println(key , ":" , value)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err!=nil{
+		log.Fatal(err)
+	}
+
+	fmt.Println("\nBody:\n" , string(body))
 }

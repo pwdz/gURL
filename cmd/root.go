@@ -95,7 +95,7 @@ func init() {
 	RootCmd.Flags().StringSliceP("query", "Q", nil, "pass querries")
 	RootCmd.Flags().StringP("data", "D", "", "pass body data")
 	RootCmd.Flags().StringP("json", "J", "", "pass body in json format")
-	RootCmd.Flags().IntP("timeout", "T", -1, "request timeout")
+	RootCmd.Flags().IntP("timeout", "T", 0, "request timeout")
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -1,5 +1,5 @@
 # gurl
-go http client (a simpler version of curl)
+go http client (a much simpler version of curl) for Web dev course @ AUT
 ### Run
 ```
 go run main.go URL [flags]

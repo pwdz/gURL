@@ -1,4 +1,4 @@
-// Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2021 NAME HERE me.adibzadeh@gmail.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"log"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/pwdz/gurl/app"
 )
 
 var cfgFile string
@@ -28,16 +30,48 @@ var cfgFile string
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "gurl",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "go http client",
+	Long: `gurl is a cli http client like curl`,
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		
+		method, err := cmd.Flags().GetString("method")
+		if err != nil{
+			log.Fatal(err)
+			return
+		}
+		rawHeaders, err := cmd.Flags().GetStringSlice("header")
+		if err != nil{
+			log.Fatal(err)
+			return
+		}
+		rawQuerries, err := cmd.Flags().GetStringSlice("query")
+		if err != nil{
+			log.Fatal(err)
+			return
+		}
+		data, err := cmd.Flags().GetString("data")
+		if err != nil{
+			log.Fatal(err)
+			return
+		}
+		json, err := cmd.Flags().GetString("json")
+		if err != nil{
+			log.Fatal(err)
+			return
+		}
+		timeout, err := cmd.Flags().GetInt("timeout")
+		if err != nil{
+			log.Fatal(err)
+			return
+		}
+
+		fmt.Println("kir:" , rawHeaders)
+		if err := app.Send(args[0], method, rawHeaders, rawQuerries, data, json, timeout); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -57,9 +91,12 @@ func init() {
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gurl.yaml)")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.Flags().StringP("method", "M", app.DefaultMethod , "pass method(GET/POST/PATCH/DELETE/PUT). default value is GET.")
+	RootCmd.Flags().StringSliceP("header", "H", nil, "pass headers")
+	RootCmd.Flags().StringSliceP("query", "Q", nil, "pass querries")
+	RootCmd.Flags().StringP("data", "D", "", "pass body data")
+	RootCmd.Flags().StringP("json", "J", "", "pass body in json format")
+	RootCmd.Flags().IntP("timeout", "T", -1, "request timeout")
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -2,10 +2,9 @@ package pkg
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
-	"sort"
-
-	"github.com/pwdz/gurl/app"
+	"strings"
 )
 func IsValidUrl(data string) bool {
 	_, err := url.ParseRequestURI(data)
@@ -21,12 +20,13 @@ func IsValidUrl(data string) bool {
 	return true
 }
 
-func IsValidJSON(data string) bool {
+func IsJSONValid(data string) bool {
 	var marshaled map[string]interface{}
 	return json.Unmarshal([]byte(data), &marshaled) == nil
 }
-func IsMethodValid(method string) bool{
-	for _, m := range app.Methods{
+func IsMethodValid(method string, methods []string) bool{
+	fmt.Println("Validating method...")
+	for _, m := range methods{
 		if m == method{
 			return true
 		}
@@ -36,4 +36,16 @@ func IsMethodValid(method string) bool{
 func InMapExists(m map[string]string, value string) bool {
 	_, ok := m[value]
 	return ok
+}
+func IsDataValid(data string) bool{
+	parts := strings.Split(data, "&")
+	for _, part := range parts{
+		keyValue := strings.Split(part, "=")
+		if len(keyValue) > 1{
+		}else{
+			return false
+		}
+
+	}
+	return true
 }

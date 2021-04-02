@@ -66,7 +66,6 @@ var RootCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Println("kir:" , rawHeaders)
 		if err := app.Send(args[0], method, rawHeaders, rawQuerries, data, json, timeout); err != nil {
 			fmt.Println(err)
 			os.Exit(1)

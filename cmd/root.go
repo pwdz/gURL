@@ -90,12 +90,13 @@ func init() {
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gurl.yaml)")
 
-	RootCmd.Flags().StringP("method", "M", app.DefaultMethod , "pass method(GET/POST/PATCH/DELETE/PUT). default value is GET.")
-	RootCmd.Flags().StringSliceP("header", "H", nil, "pass headers")
-	RootCmd.Flags().StringSliceP("query", "Q", nil, "pass querries")
-	RootCmd.Flags().StringP("data", "D", "", "pass body data")
-	RootCmd.Flags().StringP("json", "J", "", "pass body in json format")
-	RootCmd.Flags().IntP("timeout", "T", 0, "request timeout")
+	RootCmd.Flags().StringP("method", "M", app.DefaultMethod , "(OPTIONAL) pass method(GET/POST/PATCH/DELETE/PUT). default value is GET.")
+	RootCmd.Flags().StringSliceP("header", "H", nil, "(OPTIONAL) pass headers")
+	RootCmd.Flags().StringSliceP("query", "Q", nil, "(OPTIONAL) pass querries")
+	RootCmd.Flags().StringP("data", "D", "", "(OPTIONAL) pass body data")
+	RootCmd.Flags().StringP("json", "J", "", "(OPTIONAL) pass body in json format")
+	RootCmd.Flags().StringP("file", "F", "", "(OPTIONAL) pass location of the file")
+	RootCmd.Flags().IntP("timeout", "T", 0, "(OPTIONAL) request timeout. default is infinite")
 }
 
 // initConfig reads in config file and ENV variables if set.

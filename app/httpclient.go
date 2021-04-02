@@ -88,9 +88,11 @@ func addQuerries(request *http.Request, rawQuerries []string){
 	querriesMap := parseQuerries(rawQuerries)
 
 	log.Println("Add querries...")
+	q := request.URL.Query()
 	for key, value := range querriesMap{ 
-		request.URL.Query().Add(key, value)
+		q.Add(key, value)
 	}
+	request.URL.RawQuery = q.Encode()
 }
 func parseHeaders(rawHeaders []string) (map[string]string, string) {
 	if rawHeaders == nil{

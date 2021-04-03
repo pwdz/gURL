@@ -1,4 +1,4 @@
-# gurl
+# gURL
 go http client (a much simpler version of curl) for Web dev course @ AUT
 ### Run
 ```
